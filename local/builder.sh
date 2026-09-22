@@ -51,9 +51,9 @@ echo "===================="
 echo
 
 # ===== 创建工作目录 =====
-WORKDIR="$(pwd)"
-mkdir -p "$WORKDIR/kernel_workspace"
-cd "$WORKDIR/kernel_workspace"
+WORKDIR="$HOME/neo7-build"
+mkdir -p "$WORKDIR"
+cd "$WORKDIR"
 
 # ===== 安装构建依赖 =====
 echo ">>> 安装构建依赖..."
@@ -151,7 +151,7 @@ else
 fi
 
 # ===== 克隆补丁仓库&应用 SUSFS 补丁 =====
-cd "$WORKDIR/kernel_workspace"
+cd "$WORKDIR"
 echo ">>> 应用 SUSFS&hook 补丁..."
 if [[ "$APPLY_SUSFS" == [yY] ]]; then
   echo ">>> 克隆补丁仓库..."
@@ -166,13 +166,13 @@ if [[ "$APPLY_SUSFS" == [yY] ]]; then
 else
   echo ">>> 未开启susfs，跳过susfs补丁配置..."
 fi
-cd "$WORKDIR/kernel_workspace"
+cd "$WORKDIR"
 if [[ "$KSU_BRANCH" == [kK] && "$APPLY_SUSFS" == [yY] ]]; then
   cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
   cd ./KernelSU
   patch -p1 -F 3 < 10_enable_susfs_for_ksu.patch || true
 fi
-cd "$WORKDIR/kernel_workspace"
+cd "$WORKDIR"
 
 # ===== 应用 LZ4 & ZSTD 补丁 =====
 if [[ "$APPLY_LZ4" == "y" || "$APPLY_LZ4" == "Y" ]]; then
@@ -184,10 +184,10 @@ if [[ "$APPLY_LZ4" == "y" || "$APPLY_LZ4" == "Y" ]]; then
   cd android_kernel_oneplus_mt6989
   git apply -p1 < 001-lz4.patch || true
   patch -p1 -F 3 < 002-zstd.patch || true
-  cd "$WORKDIR/kernel_workspace"
+  cd "$WORKDIR"
 else
   echo ">>> 跳过 LZ4&ZSTD 补丁..."
-  cd "$WORKDIR/kernel_workspace"
+  cd "$WORKDIR"
 fi
 
 # ===== 应用 LZ4KD 补丁 =====
@@ -202,10 +202,10 @@ if [[ "$APPLY_LZ4KD" == "y" || "$APPLY_LZ4KD" == "Y" ]]; then
   cp ./SukiSU_patch/other/zram/zram_patch/6.1/lz4kd.patch ./android_kernel_oneplus_mt6989/
   cd android_kernel_oneplus_mt6989
   patch -p1 -F 3 < lz4kd.patch || true
-  cd "$WORKDIR/kernel_workspace"
+  cd "$WORKDIR"
 else
   echo ">>> 跳过 LZ4KD 补丁..."
-  cd "$WORKDIR/kernel_workspace"
+  cd "$WORKDIR"
 fi
 
 # ===== 添加 defconfig 配置项 =====
@@ -389,7 +389,7 @@ make -j$(nproc --all) LLVM=-20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS
 echo ">>> 内核编译成功！"
 
 # ===== 选择使用 patch_linux (KPM补丁)=====
-OUT_DIR="$WORKDIR/kernel_workspace/android_kernel_oneplus_mt6989/out/arch/arm64/boot"
+OUT_DIR="$WORKDIR/android_kernel_oneplus_mt6989/out/arch/arm64/boot"
 if [[ "$USE_PATCH_LINUX" == [yY] ]]; then
   echo ">>> 使用 kptools-linux 工具处理输出..."
   cd "$OUT_DIR"
@@ -403,7 +403,7 @@ if [[ "$USE_PATCH_LINUX" == [yY] ]]; then
 fi
 
 # ===== 克隆并打包 AnyKernel3 =====
-cd "$WORKDIR/kernel_workspace"
+cd "$WORKDIR"
 echo ">>> 克隆 AnyKernel3 项目..."
 git clone https://github.com/cctv18/AnyKernel3 --depth=1
 
