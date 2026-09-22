@@ -77,12 +77,12 @@ jobs:
           sudo apt update
           sudo apt install -y clang-20 llvm-20
           cd /usr/bin
-          sudo ln -s llvm-config-20 llvm-config
-          sudo ln -s clang-20 clang
-          sudo ln -s /usr/bin/llvm-ar-20 /usr/local/bin/llvm-ar
-          sudo ln -s /usr/bin/llvm-nm-20 /usr/local/bin/llvm-nm
-          sudo ln -s /usr/bin/llvm-ranlib-20 /usr/local/bin/llvm-ranlib
-          sudo ln -s /usr/bin/llvm-strip-20 /usr/local/bin/llvm-strip
+          sudo ln -sf llvm-config-20 llvm-config
+          sudo ln -sf clang-20 clang
+          for tool in ar nm ranlib strip; do
+            src=$(ls /usr/bin/${tool}-20 2>/dev/null || echo "/usr/bin/${tool}")
+            sudo ln -sf "${src}" "/usr/local/bin/${tool}"
+          done
 
       - name: Build Kernel
         run: |
