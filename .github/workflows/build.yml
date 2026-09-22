@@ -44,6 +44,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  KERNEL_VERSION: "6.1.157"
   KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r' }}
   APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
   APPLY_LZ4:   ${{ github.event.inputs.apply_lz4 || 'y' }}
@@ -64,17 +65,13 @@ jobs:
           path: neo7-kernel-builder
 
       - name: Setup Build Environment
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 10
-          max_attempts: 2
-          command: |
-            sudo apt update
-            sudo apt install -y binutils cmake cpp-12-arm-linux-gnueabi ccache curl git               libc6-dev libcap-dev libcrypt-rijndael-perl libelf-dev libiberty-dev               libssl-dev libtool perl python3 unzip wget bison flex zip
-            sudo rm -f /etc/apt/sources.list.d/microsoft-edge.list
-            sudo apt update
-            sudo rm -rf /var/lib/man-db/auto-update
-            sudo apt-mark hold firefox libc-bin man-db
+        run: |
+          sudo apt update
+          sudo apt install -y binutils cmake cpp-12-arm-linux-gnueabi ccache curl git libc6-dev libcap-dev libcrypt-rijndael-perl libelf-dev libiberty-dev libssl-dev libtool perl python3 unzip wget bison flex zip
+          sudo rm -f /etc/apt/sources.list.d/microsoft-edge.list
+          sudo apt update
+          sudo rm -rf /var/lib/man-db/auto-update
+          sudo apt-mark hold firefox libc-bin man-db
 
       - name: Prepare Cross-Compiler
         shell: bash
