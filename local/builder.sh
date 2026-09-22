@@ -1,38 +1,35 @@
 #!/bin/bash
-set -e
-
-# ===== 获取脚本目录 =====
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
 
 # ===== 设置自定义参数 =====
 echo "===== 真我Neo7(RMX5060) 6.1.157 内核本地编译脚本 ====="
 echo ">>> 读取用户配置..."
 
+MANIFEST=${MANIFEST:-realme-neo7-RMX5060}
+
 # Auto-detect from environment variables (for CI) or prompt interactively
-if [ -z "$CUSTOM_SUFFIX" ]; then read -p "请输入自定义内核后缀（默认：neo7-6.1.157）: " CUSTOM_SUFFIX; fi
+if [ -z "${CUSTOM_SUFFIX}" ]; then read -p "请输入自定义内核后缀（默认：neo7-6.1.157）: " CUSTOM_SUFFIX; fi
 CUSTOM_SUFFIX=${CUSTOM_SUFFIX:-neo7-6.1.157}
-if [ -z "$APPLY_SUSFS" ]; then read -p "是否启用susfs？(y/n，默认：y): " APPLY_SUSFS; fi
+if [ -z "${APPLY_SUSFS}" ]; then read -p "是否启用susfs？(y/n，默认：y): " APPLY_SUSFS; fi
 APPLY_SUSFS=${APPLY_SUSFS:-y}
-if [ -z "$USE_PATCH_LINUX" ]; then read -p "是否启用 KPM？(y-启用 KpatchNext独立kpm实现, n-关闭kpm，默认：n): " USE_PATCH_LINUX; fi
+if [ -z "${USE_PATCH_LINUX}" ]; then read -p "是否启用 KPM？(y-启用 KpatchNext独立kpm实现, n-关闭kpm，默认：n): " USE_PATCH_LINUX; fi
 USE_PATCH_LINUX=${USE_PATCH_LINUX:-n}
-if [ -z "$KSU_BRANCH" ]; then read -p "KSU分支版本(r=ReSukiSU, y=SukiSU Ultra, n=KernelSU Next, k=KSU, l=lkm模式(无内置KSU), 默认：r): " KSU_BRANCH; fi
+if [ -z "${KSU_BRANCH}" ]; then read -p "KSU分支版本(r=ReSukiSU, y=SukiSU Ultra, n=KernelSU Next, k=KSU, l=lkm模式(无内置KSU), 默认：r): " KSU_BRANCH; fi
 KSU_BRANCH=${KSU_BRANCH:-r}
-if [ -z "$APPLY_LZ4" ]; then read -p "是否应用 lz4 1.10.0 & zstd 1.5.7 补丁？(y/n，默认：y): " APPLY_LZ4; fi
+if [ -z "${APPLY_LZ4}" ]; then read -p "是否应用 lz4 1.10.0 & zstd 1.5.7 补丁？(y/n，默认：y): " APPLY_LZ4; fi
 APPLY_LZ4=${APPLY_LZ4:-y}
-if [ -z "$APPLY_LZ4KD" ]; then read -p "是否应用 lz4kd 补丁？(y/n，默认：n): " APPLY_LZ4KD; fi
+if [ -z "${APPLY_LZ4KD}" ]; then read -p "是否应用 lz4kd 补丁？(y/n，默认：n): " APPLY_LZ4KD; fi
 APPLY_LZ4KD=${APPLY_LZ4KD:-n}
-if [ -z "$APPLY_BETTERNET" ]; then read -p "是否启用网络功能增强优化配置？(y/n，默认：y): " APPLY_BETTERNET; fi
+if [ -z "${APPLY_BETTERNET}" ]; then read -p "是否启用网络功能增强优化配置？(y/n，默认：y): " APPLY_BETTERNET; fi
 APPLY_BETTERNET=${APPLY_BETTERNET:-y}
-if [ -z "$APPLY_BBR" ]; then read -p "是否添加 BBR 等一系列拥塞控制算法？(y添加/n禁用/d默认，默认：n): " APPLY_BBR; fi
+if [ -z "${APPLY_BBR}" ]; then read -p "是否添加 BBR 等一系列拥塞控制算法？(y添加/n禁用/d默认，默认：n): " APPLY_BBR; fi
 APPLY_BBR=${APPLY_BBR:-n}
-if [ -z "$APPLY_DROIDSPACES" ]; then read -p "是否添加 Droidspaces 容器支持？(n禁用/s标准/e扩展，默认：n): " APPLY_DROIDSPACES; fi
+if [ -z "${APPLY_DROIDSPACES}" ]; then read -p "是否添加 Droidspaces 容器支持？(n禁用/s标准/e扩展，默认：n): " APPLY_DROIDSPACES; fi
 APPLY_DROIDSPACES=${APPLY_DROIDSPACES:-n}
-if [ -z "$APPLY_SSG" ]; then read -p "是否启用三星SSG IO调度器？(y/n，默认：y): " APPLY_SSG; fi
+if [ -z "${APPLY_SSG}" ]; then read -p "是否启用三星SSG IO调度器？(y/n，默认：y): " APPLY_SSG; fi
 APPLY_SSG=${APPLY_SSG:-y}
-if [ -z "$APPLY_REKERNEL" ]; then read -p "是否启用Re-Kernel？(y/n，默认：n): " APPLY_REKERNEL; fi
+if [ -z "${APPLY_REKERNEL}" ]; then read -p "是否启用Re-Kernel？(y/n，默认：n): " APPLY_REKERNEL; fi
 APPLY_REKERNEL=${APPLY_REKERNEL:-n}
-if [ -z "$APPLY_BBG" ]; then read -p "是否启用内核级基带保护？(y/n，默认：y): " APPLY_BBG; fi
+if [ -z "${APPLY_BBG}" ]; then read -p "是否启用内核级基带保护？(y/n，默认：y): " APPLY_BBG; fi
 APPLY_BBG=${APPLY_BBG:-y}
 
 if [[ "$KSU_BRANCH" == "y" || "$KSU_BRANCH" == "Y" ]]; then
@@ -49,7 +46,7 @@ fi
 
 echo
 echo "===== 配置信息 ====="
-echo "适用机型: $MANIFEST"
+echo "适用机型: ${MANIFEST}"
 echo "自定义内核后缀: -$CUSTOM_SUFFIX"
 echo "KSU分支版本: $KSU_TYPE"
 echo "启用susfs: $APPLY_SUSFS"

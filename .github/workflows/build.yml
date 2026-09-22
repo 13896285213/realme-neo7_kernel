@@ -51,7 +51,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      KERNEL_VERSION: "6.1.157"
       KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r (ReSukiSU)' }}
       APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
       APPLY_LZ4: ${{ github.event.inputs.apply_lz4 || 'y' }}
@@ -63,34 +62,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Build Environment
-        run: |
-          sudo apt update
-          sudo apt install -y binutils cmake cpp-12-arm-linux-gnueabi ccache curl git libc6-dev libcap-dev libcrypt-rijndael-perl libelf-dev libiberty-dev libssl-dev libtool perl python3 unzip wget bison flex zip
-          sudo rm -f /etc/apt/sources.list.d/microsoft-edge.list
-          sudo apt update
-          sudo rm -rf /var/lib/man-db/auto-update
-          sudo apt-mark hold firefox libc-bin man-db
-
-      - name: Prepare Cross-Compiler
-        run: |
-          sudo apt update
-          sudo apt install -y clang-20 llvm-20
-          cd /usr/bin
-          sudo ln -sf llvm-config-20 llvm-config
-          sudo ln -sf clang-20 clang
-          for tool in ar nm ranlib strip; do
-            src=$(ls /usr/bin/${tool}-20 2>/dev/null || echo "/usr/bin/${tool}")
-            sudo ln -sf "${src}" "/usr/local/bin/${tool}"
-          done
-
       - name: Build Kernel
         run: |
           chmod +x local/builder.sh
           bash local/builder.sh
 
       - name: Upload Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Neo7-Kernel-${{ env.KERNEL_VERSION }}-ksu-${{ env.KSU_BRANCH }}
-          path: neo7-kernel-builder/kernel_workspace/*.zip
+          name: Neo7-Kernel-${{ env.CUSTOM_SUFFIX }}
+          path: kernel_workspace/*.zip
