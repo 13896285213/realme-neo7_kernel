@@ -1,0 +1,16 @@
+# Build output
+kernel_workspace/
+AnyKernel3/
+KernelSU-Next/
+susfs4ksu/
+lz4-repo/
+dss-repo/
+*.zip
+
+# Python temp files
+*.pyc
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db

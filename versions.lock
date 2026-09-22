@@ -1,0 +1,14 @@
+device=RMX5060
+rom=RMX5060_16.0.9.400(CN01)
+android=16
+spl=2026-07-01
+kernel=6.1.157-android14-11-o-gc2dad16af736
+kmi=android14-6.1-11
+base_repo=OnePlusOSS/android_kernel_oneplus_mt6989
+base_commit=822beed40827f1e9a103bc06ab4714a670080b72
+kernelsu_repo=KernelSU-Next/KernelSU-Next
+kernelsu_tag=v3.3.0
+kernelsu_commit=3b18216f71df189ab3d1b1ce0bdb21be1268e771
+susfs_version=2.2.0
+susfs_commit=0ff932799d898366d57b3b5984d85cdbcfcfad0a
+wildkernels_reference=v2.2.0-r4

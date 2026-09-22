@@ -1,0 +1,117 @@
+# Neo7 Kernel Builder — 真我 Neo 7 (RMX5060, mt6989) 6.1.157
+name: Neo7-Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      ksu_branch:
+        description: "KSU分支: r=ReSukiSU, y=SukiSU, n=KSUNext, k=KSU, l=空壳"
+        required: true
+        default: "r"
+        type: choice
+        options: [r, y, n, k, l]
+      apply_susfs:
+        description: "启用SUSFS"
+        required: true
+        default: "y"
+        type: choice
+        options: [y, n]
+      apply_lz4:
+        description: "启用LZ4/ZSTD补丁"
+        required: true
+        default: "y"
+        type: choice
+        options: [y, n]
+      apply_net:
+        description: "启用网络增强(BBR/ip_set)"
+        required: true
+        default: "y"
+        type: choice
+        options: [y, n]
+      apply_ssg:
+        description: "启用三星SSG IO调度器"
+        required: true
+        default: "y"
+        type: choice
+        options: [y, n]
+      custom_suffix:
+        description: "自定义内核后缀"
+        required: false
+        default: "neo7-6.1.157"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r' }}
+  APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
+  APPLY_LZ4:   ${{ github.event.inputs.apply_lz4 || 'y' }}
+  APPLY_NET:   ${{ github.event.inputs.apply_net || 'y' }}
+  APPLY_SSG:   ${{ github.event.inputs.apply_ssg || 'y' }}
+  CUSTOM_SUFFIX: ${{ github.event.inputs.custom_suffix || 'neo7-6.1.157' }}
+
+jobs:
+  build:
+    name: Build Neo7 Kernel ${{ env.KERNEL_VERSION }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: neo7-kernel-builder
+
+      - name: Setup Build Environment
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          command: |
+            sudo apt update
+            sudo apt install -y binutils cmake cpp-12-arm-linux-gnueabi ccache curl git               libc6-dev libcap-dev libcrypt-rijndael-perl libelf-dev libiberty-dev               libssl-dev libtool perl python3 unzip wget bison flex zip
+            sudo rm -f /etc/apt/sources.list.d/microsoft-edge.list
+            sudo apt update
+            sudo rm -rf /var/lib/man-db/auto-update
+            sudo apt-mark hold firefox libc-bin man-db
+
+      - name: Prepare Cross-Compiler
+        shell: bash
+        run: |
+          CCVER=12.3.rel1
+          BASEURL=https://github.com/wclim0409/ccache-bin-toolchain/releases/download/${CCVER}
+          for arch in arm64 aarch64; do
+            prefix="${arch}-linux-gnu-"
+            if [ ! -d "/usr/lib/ccache/bin/${arch}-linux-gnu/bin" ]; then
+              curl -fsSL "${BASEURL}/${prefix}${CCVER}.tar.xz" | sudo tar -xJ -C /usr/lib/ccache
+              for bin in clang gcc; do
+                sudo ln -sf /usr/lib/ccache/bin/${arch}-linux-gnu/bin/${arch}-linux-gnu-${bin} /usr/bin/${arch}-linux-gnu-${bin}
+              done
+            fi
+          done
+
+      - name: Configure ccache
+        run: |
+          ccache -M 50G
+          sudo mkdir -p /etc/ccache
+          cat > /etc/ccache/ccache.conf <<EOF
+          compression = true
+          compression_level = 6
+          max_size = 50G
+          EOF
+          sudo chmod 644 /etc/ccache/ccache.conf
+
+      - name: Build Kernel
+        working-directory: neo7-kernel-builder
+        run: |
+          sudo mkdir -p /usr/local/var/ccache
+          sudo chmod 777 /usr/local/var/ccache
+          bash local/builder.sh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neo7-Kernel-${{ env.CUSTOM_SUFFIX }}
+          path: neo7-kernel-builder/kernel_workspace/*.zip
+          retention-days: 14
