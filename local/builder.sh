@@ -55,11 +55,10 @@ if [ -d "${ROOT_DIR}/patches/wildkernels" ]; then
     cd "${WORK_DIR}"
 fi
 
-# Force clean the source tree after applying patches
-echo ">>> Force cleaning source tree..."
+# Stage and commit all patches so reset doesn't undo them
 cd "${KERNEL_SRC}"
 git add -A
-git reset --hard HEAD 2>/dev/null || true
+git commit -q --allow-empty -m "applied final-source + wildkernels patches" 2>/dev/null || true
 git clean -fdx 2>/dev/null || true
 cd "${WORK_DIR}"
 
