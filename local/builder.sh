@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # ===== 获取脚本目录 =====
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
