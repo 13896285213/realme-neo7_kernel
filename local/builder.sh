@@ -52,7 +52,8 @@ echo
 
 # ===== 创建工作目录 =====
 WORKDIR="$(pwd)"
-cd "$WORKDIR"
+mkdir -p "$WORKDIR/kernel_workspace"
+cd "$WORKDIR/kernel_workspace"
 
 # ===== 安装构建依赖 =====
 echo ">>> 安装构建依赖..."
@@ -180,7 +181,7 @@ if [[ "$APPLY_LZ4" == "y" || "$APPLY_LZ4" == "Y" ]]; then
   cp ./oppo_oplus_realme_sm8650/zram_patch/001-lz4.patch ./android_kernel_oneplus_mt6989/
   cp ./oppo_oplus_realme_sm8650/zram_patch/lz4armv8.S ./android_kernel_oneplus_mt6989/lib
   cp ./oppo_oplus_realme_sm8650/zram_patch/002-zstd.patch ./android_kernel_oneplus_mt6989/
-  cd "$WORKDIR/kernel_workspace/android_kernel_oneplus_mt6989"
+  cd android_kernel_oneplus_mt6989
   git apply -p1 < 001-lz4.patch || true
   patch -p1 -F 3 < 002-zstd.patch || true
   cd "$WORKDIR/kernel_workspace"
@@ -199,7 +200,7 @@ if [[ "$APPLY_LZ4KD" == "y" || "$APPLY_LZ4KD" == "Y" ]]; then
   cp -r ./SukiSU_patch/other/zram/lz4k/lib/* ./android_kernel_oneplus_mt6989/lib
   cp -r ./SukiSU_patch/other/zram/lz4k/crypto/* ./android_kernel_oneplus_mt6989/crypto
   cp ./SukiSU_patch/other/zram/zram_patch/6.1/lz4kd.patch ./android_kernel_oneplus_mt6989/
-  cd "$WORKDIR/kernel_workspace/android_kernel_oneplus_mt6989"
+  cd android_kernel_oneplus_mt6989
   patch -p1 -F 3 < lz4kd.patch || true
   cd "$WORKDIR/kernel_workspace"
 else
