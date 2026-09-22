@@ -51,7 +51,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r (ReSukiSU)' }}
+      KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r' }}
       APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
       APPLY_LZ4: ${{ github.event.inputs.apply_lz4 || 'y' }}
       APPLY_NET: ${{ github.event.inputs.apply_net || 'y' }}

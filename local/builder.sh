@@ -66,10 +66,23 @@ SU() {
     fi
 }
 
-SU apt-mark hold firefox && apt-mark hold libc-bin && apt-mark hold man-db
-SU rm -rf /var/lib/man-db/auto-update
-SU apt-get update
-SU apt-get install --no-install-recommends -y curl bison flex clang binutils dwarves git lld pahole zip perl make gcc python3 python-is-python3 bc libssl-dev libelf-dev cpio xz-utils tar unzip
+# Retry helper for apt commands that may hit dpkg lock
+apt_retry() {
+    local max=5 delay=2
+    for i in $(seq 1 $max); do
+        if "$@"; then return 0; fi
+        echo "Attempt $i/$max failed, retrying in ${delay}s..."
+        sleep $delay; delay=$((delay * 2))
+    done
+    return 1
+}
+
+apt_retry SU apt-mark hold firefox
+apt_retry SU apt-mark hold libc-bin
+apt_retry SU apt-mark hold man-db
+apt_retry SU rm -rf /var/lib/man-db/auto-update
+apt_retry SU apt-get update
+apt_retry SU apt-get install --no-install-recommends -y curl bison flex clang binutils dwarves git lld pahole zip perl make gcc python3 python-is-python3 bc libssl-dev libelf-dev cpio xz-utils tar unzip
 SU rm -rf ./llvm.sh && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh
 SU ./llvm.sh 20 all
 
