@@ -4,7 +4,7 @@
 
 ## 芯片信息
 
-- SoC: MediaTek Dimensity 8400 (mt6989)
+- SoC: MediaTek Dimensity 9300+ (mt6989)
 - Kernel Base: `OnePlusOSS/android_kernel_oneplus_mt6989@822beed` (6.1.157)
 - Android Version: Android 15 (GKI 2.0)
 
