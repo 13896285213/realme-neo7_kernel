@@ -110,16 +110,16 @@ done
 echo ">>> 正在清除 ABI 文件及去除 dirty 后缀..."
 rm android_kernel_oneplus_mt6989/out/abi_gki_protected_exports_* 2>/dev/null || true
 
-for f in android_kernel_oneplus_mt6989/scripts/setlocalversion; do
-  sed -i 's/ -dirty//g' "$f"
-  sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' "$f"
-done
+if [ -f android_kernel_oneplus_mt6989/scripts/setlocalversion ]; then
+  sed -i 's/ -dirty//g' android_kernel_oneplus_mt6989/scripts/setlocalversion || true
+  sed -i '\$i res=\$(echo "\$res" | sed '''s/-dirty//g''')' android_kernel_oneplus_mt6989/scripts/setlocalversion || true
+fi
 
 # ===== 替换版本后缀 =====
 echo ">>> 替换内核版本后缀..."
-for f in ./android_kernel_oneplus_mt6989/scripts/setlocalversion; do
-  sed -i "\$s|echo \"\\\$res\"|echo \"-${CUSTOM_SUFFIX}\"|" "$f"
-done
+if [ -f ./android_kernel_oneplus_mt6989/scripts/setlocalversion ]; then
+  sed -i "\$s|echo \"\\$res\"|echo \"-${CUSTOM_SUFFIX}\"|" ./android_kernel_oneplus_mt6989/scripts/setlocalversion || true
+fi
 
 # ===== 拉取 KSU 并设置版本号 =====
 if [[ $KSU_BRANCH == [yYrR] ]]; then
