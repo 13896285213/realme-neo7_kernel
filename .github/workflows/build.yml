@@ -2,6 +2,8 @@
 name: Neo7-Builder
 
 on:
+  push:
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       ksu_branch:
@@ -45,12 +47,12 @@ concurrency:
 
 env:
   KERNEL_VERSION: "6.1.157"
-  KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r' }}
-  APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
-  APPLY_LZ4:   ${{ github.event.inputs.apply_lz4 || 'y' }}
-  APPLY_NET:   ${{ github.event.inputs.apply_net || 'y' }}
-  APPLY_SSG:   ${{ github.event.inputs.apply_ssg || 'y' }}
-  CUSTOM_SUFFIX: ${{ github.event.inputs.custom_suffix || 'neo7-6.1.157' }}
+  KSU_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ksu_branch || 'r' }}
+  APPLY_SUSFS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_susfs || 'y' }}
+  APPLY_LZ4:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_lz4 || 'y' }}
+  APPLY_NET:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_net || 'y' }}
+  APPLY_SSG:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_ssg || 'y' }}
+  CUSTOM_SUFFIX: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.custom_suffix || 'neo7-6.1.157' }}
 
 jobs:
   build:
