@@ -1,5 +1,4 @@
-# Neo7 Kernel Builder — 真我 Neo 7 (RMX5060, mt6989) 6.1.157
-name: Neo7-Builder
+name: Build Realme Neo7 Kernel
 
 on:
   push:
@@ -7,64 +6,62 @@ on:
   workflow_dispatch:
     inputs:
       ksu_branch:
-        description: "KSU分支: r=ReSukiSU, y=SukiSU, n=KSUNext, k=KSU, l=空壳"
+        description: 'KernelSU version'
         required: true
-        default: "r"
+        default: 'r'
         type: choice
-        options: [r, y, n, k, l]
+        options:
+          - r (ReSukiSU)
+          - s (SukiSU)
+          - n (KernelSU-Next)
+          - k (Original KernelSU)
       apply_susfs:
-        description: "启用SUSFS"
+        description: 'Apply SUSFS patches'
         required: true
-        default: "y"
+        default: 'y'
         type: choice
-        options: [y, n]
+        options: ['y', 'n']
       apply_lz4:
-        description: "启用LZ4/ZSTD补丁"
+        description: 'Apply LZ4 compression patches'
         required: true
-        default: "y"
+        default: 'y'
         type: choice
-        options: [y, n]
+        options: ['y', 'n']
       apply_net:
-        description: "启用网络增强(BBR/ip_set)"
+        description: 'Apply network enhancement patches'
         required: true
-        default: "y"
+        default: 'y'
         type: choice
-        options: [y, n]
+        options: ['y', 'n']
       apply_ssg:
-        description: "启用三星SSG IO调度器"
+        description: 'Apply SSG patches'
         required: true
-        default: "y"
+        default: 'y'
         type: choice
-        options: [y, n]
+        options: ['y', 'n']
       custom_suffix:
-        description: "自定义内核后缀"
+        description: 'Custom build suffix'
         required: false
-        default: "neo7-6.1.157"
+        default: 'neo7-6.1.157'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  KERNEL_VERSION: "6.1.157"
-  KSU_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ksu_branch || 'r' }}
-  APPLY_SUSFS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_susfs || 'y' }}
-  APPLY_LZ4:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_lz4 || 'y' }}
-  APPLY_NET:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_net || 'y' }}
-  APPLY_SSG:   ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.apply_ssg || 'y' }}
-  CUSTOM_SUFFIX: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.custom_suffix || 'neo7-6.1.157' }}
+permissions:
+  contents: write
 
 jobs:
   build:
-    name: Build Neo7 Kernel ${{ env.KERNEL_VERSION }}
-    runs-on: ubuntu-22.04
-    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    env:
+      KERNEL_VERSION: "6.1.157"
+      KSU_BRANCH: ${{ github.event.inputs.ksu_branch || 'r' }}
+      APPLY_SUSFS: ${{ github.event.inputs.apply_susfs || 'y' }}
+      APPLY_LZ4: ${{ github.event.inputs.apply_lz4 || 'y' }}
+      APPLY_NET: ${{ github.event.inputs.apply_net || 'y' }}
+      APPLY_SSG: ${{ github.event.inputs.apply_ssg || 'y' }}
+      CUSTOM_SUFFIX: ${{ github.event.inputs.custom_suffix || 'neo7-6.1.157' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: neo7-kernel-builder
 
       - name: Setup Build Environment
         run: |
@@ -76,41 +73,24 @@ jobs:
           sudo apt-mark hold firefox libc-bin man-db
 
       - name: Prepare Cross-Compiler
-        shell: bash
         run: |
-          CCVER=12.3.rel1
-          BASEURL=https://github.com/wclim0409/ccache-bin-toolchain/releases/download/${CCVER}
-          for arch in arm64 aarch64; do
-            prefix="${arch}-linux-gnu-"
-            if [ ! -d "/usr/lib/ccache/bin/${arch}-linux-gnu/bin" ]; then
-              curl -fsSL "${BASEURL}/${prefix}${CCVER}.tar.xz" | sudo tar -xJ -C /usr/lib/ccache
-              for bin in clang gcc; do
-                sudo ln -sf /usr/lib/ccache/bin/${arch}-linux-gnu/bin/${arch}-linux-gnu-${bin} /usr/bin/${arch}-linux-gnu-${bin}
-              done
-            fi
-          done
-
-      - name: Configure ccache
-        run: |
-          ccache -M 50G
-          sudo mkdir -p /etc/ccache
-          cat > /etc/ccache/ccache.conf <<EOF
-          compression = true
-          compression_level = 6
-          max_size = 50G
-          EOF
-          sudo chmod 644 /etc/ccache/ccache.conf
+          sudo apt update
+          sudo apt install -y clang-20 llvm-20
+          cd /usr/bin
+          sudo ln -s llvm-config-20 llvm-config
+          sudo ln -s clang-20 clang
+          sudo ln -s /usr/bin/llvm-ar-20 /usr/local/bin/llvm-ar
+          sudo ln -s /usr/bin/llvm-nm-20 /usr/local/bin/llvm-nm
+          sudo ln -s /usr/bin/llvm-ranlib-20 /usr/local/bin/llvm-ranlib
+          sudo ln -s /usr/bin/llvm-strip-20 /usr/local/bin/llvm-strip
 
       - name: Build Kernel
-        working-directory: neo7-kernel-builder
         run: |
-          sudo mkdir -p /usr/local/var/ccache
-          sudo chmod 777 /usr/local/var/ccache
+          chmod +x local/builder.sh
           bash local/builder.sh
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Neo7-Kernel-${{ env.CUSTOM_SUFFIX }}
+          name: Neo7-Kernel-${{ env.KERNEL_VERSION }}-ksu-${{ env.KSU_BRANCH }}
           path: neo7-kernel-builder/kernel_workspace/*.zip
-          retention-days: 14
