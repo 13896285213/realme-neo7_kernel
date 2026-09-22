@@ -117,8 +117,8 @@ fi
 
 # ===== 替换版本后缀 =====
 echo ">>> 替换内核版本后缀..."
-if [ -f ./android_kernel_oneplus_mt6989/scripts/setlocalversion ]; then
-  sed -i "\$s|echo \"\\$res\"|echo \"-${CUSTOM_SUFFIX}\"|" ./android_kernel_oneplus_mt6989/scripts/setlocalversion || true
+if [ -f scripts/setlocalversion ]; then
+  sed -i "\$s|echo \"\\$res\"|echo \"-${CUSTOM_SUFFIX}\"|" scripts/setlocalversion || true
 fi
 
 # ===== 拉取 KSU 并设置版本号 =====
@@ -126,7 +126,7 @@ if [[ $KSU_BRANCH == [yYrR] ]]; then
   echo ">>> 拉取 ReSukiSU 并设置版本（由于SukiSU长期未维护无法正常编译，且ReSukiSU兼容sukisu管理器，故SukiSU源码仓库已重定向为resukisu）..."
   mkdir -p drivers/kernelsu
   curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main
-  echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%@neo7-6.1.157"' >> ./android_kernel_oneplus_mt6989/arch/arm64/configs/gki_defconfig
+  echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%@neo7-6.1.157"' >> arch/arm64/configs/gki_defconfig
 elif [[ "$KSU_BRANCH" == "n" || "$KSU_BRANCH" == "N" ]]; then
   echo ">>> 拉取 KernelSU Next 并设置版本..."
   mkdir -p drivers/kernelsu
