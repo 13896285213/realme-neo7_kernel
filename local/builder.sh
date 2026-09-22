@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-# ===== 获取脚本目录 =====
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
-
 # ===== 设置自定义参数 =====
 echo "===== 真我Neo7(RMX5060) 6.1.157 内核本地编译脚本 ====="
 echo ">>> 读取用户配置..."
@@ -68,7 +64,7 @@ echo "===================="
 echo
 
 # ===== 创建工作目录 =====
-WORKDIR="$SCRIPT_DIR"
+WORKDIR="$(pwd)"
 cd "$WORKDIR"
 
 # ===== 安装构建依赖 =====
