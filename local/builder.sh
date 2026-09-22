@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eu
 
 # Realme Neo7 (RMX5060) 6.1.157 Kernel Builder
 # Reference: https://github.com/dmitthedazed/realme-neo7-ksun-susfs
