@@ -55,6 +55,12 @@ if [ -d "${ROOT_DIR}/patches/wildkernels" ]; then
     cd "${WORK_DIR}"
 fi
 
+# Clean the source tree (required after applying patches)
+echo ">>> Cleaning source tree..."
+cd "${KERNEL_SRC}"
+make mrproper 2>/dev/null || true
+cd "${WORK_DIR}"
+
 # ===== 4. Setup toolchain =====
 echo ">>> Setting up toolchain..."
 export PATH="${HOME}/bin:${PATH}"
