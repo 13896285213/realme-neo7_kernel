@@ -77,12 +77,15 @@ fi
 # ===== 获取 KSU 源码并设置版本 =====
 if [[ "$KSU_BRANCH" == [yYrR] ]]; then
   echo ">>> 拉取 ReSukiSU 并设置版本（由于SukiSU长期未维护无法正常编译，且ReSukiSU兼容sukisu管理器，故SukiSU源码仓库已重定向为resukisu）..."
-  mkdir -p "${KERNEL_DIR}/drivers/kernelsu"
+  cd "${KERNEL_DIR}"
+  mkdir -p drivers/kernelsu
   curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main
+  cd "${WORK_DIR}"
   echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%@neo7-6.1.157"' >> "${KERNEL_DIR}/arch/arm64/configs/gki_defconfig"
 elif [[ "$KSU_BRANCH" == "n" || "$KSU_BRANCH" == "N" ]]; then
   echo ">>> 拉取 KernelSU Next 并设置版本..."
-  mkdir -p "${KERNEL_DIR}/drivers/kernelsu"
+  cd "${KERNEL_DIR}"
+  mkdir -p drivers/kernelsu
   curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/refs/heads/dev-susfs/kernel/setup.sh" | bash -s dev-susfs
   cd "${KERNEL_DIR}/KernelSU-Next"
   rm -rf .git
@@ -96,8 +99,10 @@ elif [[ "$KSU_BRANCH" == "n" || "$KSU_BRANCH" == "N" ]]; then
   patch -p2 -N -F 3 < apk_sign.patch || true
 elif [[ "$KSU_BRANCH" == "k" || "$KSU_BRANCH" == "K" ]]; then
   echo ">>> 拉取 KernelSU (tiann/KernelSU) 并设置版本..."
-  mkdir -p "${KERNEL_DIR}/drivers/kernelsu"
+  cd "${KERNEL_DIR}"
+  mkdir -p drivers/kernelsu
   curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+  cd "${WORK_DIR}"
   KSU_GIT_TAG=$(curl -sL "https://api.github.com/repos/tiann/KernelSU/tags" | grep -o '"name": *"[^"]*"' | head -n 1 | sed 's/"name": "//;s/"//')
   sed -i "s/KSU_VERSION_TAG_FALLBACK := v0.0.1/KSU_VERSION_TAG_FALLBACK := ${KSU_GIT_TAG}/g" "${KERNEL_DIR}/drivers/kernelsu/KernelSU/kernel/Kbuild"
 else
