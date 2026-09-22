@@ -55,10 +55,12 @@ if [ -d "${ROOT_DIR}/patches/wildkernels" ]; then
     cd "${WORK_DIR}"
 fi
 
-# Clean the source tree (required after applying patches)
-echo ">>> Cleaning source tree..."
+# Force clean the source tree after applying patches
+echo ">>> Force cleaning source tree..."
 cd "${KERNEL_SRC}"
-make mrproper 2>/dev/null || true
+git add -A
+git reset --hard HEAD 2>/dev/null || true
+git clean -fdx 2>/dev/null || true
 cd "${WORK_DIR}"
 
 # ===== 4. Setup toolchain =====
