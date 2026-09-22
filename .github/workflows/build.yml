@@ -8,13 +8,13 @@ on:
       ksu_branch:
         description: 'KernelSU version'
         required: true
-        default: 'r (ReSukiSU)'
+        default: 'r'
         type: choice
         options:
-          - 'r (ReSukiSU)'
-          - 's (SukiSU)'
-          - 'n (KernelSU-Next)'
-          - 'k (Original KernelSU)'
+          - r
+          - s
+          - n
+          - k
       apply_susfs:
         description: 'Apply SUSFS patches'
         required: true
