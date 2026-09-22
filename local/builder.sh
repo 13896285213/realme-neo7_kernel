@@ -94,7 +94,6 @@ mkdir kernel_workspace
 cd kernel_workspace
 git clone https://github.com/OnePlusOSS/android_kernel_oneplus_mt6989.git android_kernel_oneplus_mt6989
 cd android_kernel_oneplus_mt6989
-git fetch --depth=1 origin 822beed40827f1e9a103bc06ab4714a670080b72
 git checkout 822beed40827f1e9a103bc06ab4714a670080b72
 cd ../..
 # 应用 dmitthedazed Neo7 兼容性补丁 (wildkernels)
